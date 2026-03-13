@@ -1,0 +1,477 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		AA2000000000000000000001 /* InterviewPrepApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1000000000000000000001 /* InterviewPrepApp.swift */; };
+		AA2000000000000000000002 /* Card.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1000000000000000000002 /* Card.swift */; };
+		AA2000000000000000000003 /* Deck.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1000000000000000000003 /* Deck.swift */; };
+		AA2000000000000000000004 /* StudySession.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1000000000000000000004 /* StudySession.swift */; };
+		AA2000000000000000000005 /* ConceptCards.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1000000000000000000005 /* ConceptCards.swift */; };
+		AA2000000000000000000006 /* LeetCodeCards.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1000000000000000000006 /* LeetCodeCards.swift */; };
+		AA2000000000000000000007 /* DiscussionCards.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1000000000000000000007 /* DiscussionCards.swift */; };
+		AA2000000000000000000008 /* BehavioralCards.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1000000000000000000008 /* BehavioralCards.swift */; };
+		AA2000000000000000000009 /* AllDecks.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1000000000000000000009 /* AllDecks.swift */; };
+		AA200000000000000000000A /* StudyViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA100000000000000000000A /* StudyViewModel.swift */; };
+		AA200000000000000000000B /* BrowseViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA100000000000000000000B /* BrowseViewModel.swift */; };
+		AA200000000000000000000C /* MainTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA100000000000000000000C /* MainTabView.swift */; };
+		AA200000000000000000000D /* DeckPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA100000000000000000000D /* DeckPickerView.swift */; };
+		AA200000000000000000000E /* StudyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA100000000000000000000E /* StudyView.swift */; };
+		AA200000000000000000000F /* FlashCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA100000000000000000000F /* FlashCardView.swift */; };
+		AA2000000000000000000010 /* BrowseView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1000000000000000000010 /* BrowseView.swift */; };
+		AA2000000000000000000011 /* CardDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1000000000000000000011 /* CardDetailView.swift */; };
+		AA2000000000000000000012 /* ProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1000000000000000000012 /* ProgressView.swift */; };
+		AA2000000000000000000013 /* StudyStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1000000000000000000013 /* StudyStore.swift */; };
+		AA2000000000000000000014 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AA1000000000000000000014 /* Assets.xcassets */; };
+		AA2000000000000000000015 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AA1000000000000000000015 /* Preview Assets.xcassets */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		AA0000000000000000000001 /* InterviewPrep.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = InterviewPrep.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		AA1000000000000000000001 /* InterviewPrepApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InterviewPrepApp.swift; sourceTree = "<group>"; };
+		AA1000000000000000000002 /* Card.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Card.swift; sourceTree = "<group>"; };
+		AA1000000000000000000003 /* Deck.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Deck.swift; sourceTree = "<group>"; };
+		AA1000000000000000000004 /* StudySession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudySession.swift; sourceTree = "<group>"; };
+		AA1000000000000000000005 /* ConceptCards.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConceptCards.swift; sourceTree = "<group>"; };
+		AA1000000000000000000006 /* LeetCodeCards.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LeetCodeCards.swift; sourceTree = "<group>"; };
+		AA1000000000000000000007 /* DiscussionCards.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiscussionCards.swift; sourceTree = "<group>"; };
+		AA1000000000000000000008 /* BehavioralCards.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BehavioralCards.swift; sourceTree = "<group>"; };
+		AA1000000000000000000009 /* AllDecks.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AllDecks.swift; sourceTree = "<group>"; };
+		AA100000000000000000000A /* StudyViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudyViewModel.swift; sourceTree = "<group>"; };
+		AA100000000000000000000B /* BrowseViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrowseViewModel.swift; sourceTree = "<group>"; };
+		AA100000000000000000000C /* MainTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabView.swift; sourceTree = "<group>"; };
+		AA100000000000000000000D /* DeckPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeckPickerView.swift; sourceTree = "<group>"; };
+		AA100000000000000000000E /* StudyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudyView.swift; sourceTree = "<group>"; };
+		AA100000000000000000000F /* FlashCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlashCardView.swift; sourceTree = "<group>"; };
+		AA1000000000000000000010 /* BrowseView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrowseView.swift; sourceTree = "<group>"; };
+		AA1000000000000000000011 /* CardDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardDetailView.swift; sourceTree = "<group>"; };
+		AA1000000000000000000012 /* ProgressView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgressView.swift; sourceTree = "<group>"; };
+		AA1000000000000000000013 /* StudyStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudyStore.swift; sourceTree = "<group>"; };
+		AA1000000000000000000014 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		AA1000000000000000000015 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		AA5000000000000000000003 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		AA3000000000000000000001 /* = */ = {
+			isa = PBXGroup;
+			children = (
+				AA3000000000000000000002 /* InterviewPrep */,
+				AA300000000000000000000B /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		AA300000000000000000000B /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				AA0000000000000000000001 /* InterviewPrep.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		AA3000000000000000000002 /* InterviewPrep */ = {
+			isa = PBXGroup;
+			children = (
+				AA1000000000000000000001 /* InterviewPrepApp.swift */,
+				AA3000000000000000000003 /* Models */,
+				AA3000000000000000000004 /* Data */,
+				AA3000000000000000000005 /* ViewModels */,
+				AA3000000000000000000006 /* Views */,
+				AA300000000000000000000A /* Persistence */,
+				AA1000000000000000000014 /* Assets.xcassets */,
+				AA300000000000000000000C /* Preview Content */,
+			);
+			path = InterviewPrep;
+			sourceTree = "<group>";
+		};
+		AA3000000000000000000003 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				AA1000000000000000000002 /* Card.swift */,
+				AA1000000000000000000003 /* Deck.swift */,
+				AA1000000000000000000004 /* StudySession.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		AA3000000000000000000004 /* Data */ = {
+			isa = PBXGroup;
+			children = (
+				AA1000000000000000000005 /* ConceptCards.swift */,
+				AA1000000000000000000006 /* LeetCodeCards.swift */,
+				AA1000000000000000000007 /* DiscussionCards.swift */,
+				AA1000000000000000000008 /* BehavioralCards.swift */,
+				AA1000000000000000000009 /* AllDecks.swift */,
+			);
+			path = Data;
+			sourceTree = "<group>";
+		};
+		AA3000000000000000000005 /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				AA100000000000000000000A /* StudyViewModel.swift */,
+				AA100000000000000000000B /* BrowseViewModel.swift */,
+			);
+			path = ViewModels;
+			sourceTree = "<group>";
+		};
+		AA3000000000000000000006 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				AA100000000000000000000C /* MainTabView.swift */,
+				AA3000000000000000000007 /* Study */,
+				AA3000000000000000000008 /* Browse */,
+				AA3000000000000000000009 /* Progress */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		AA3000000000000000000007 /* Study */ = {
+			isa = PBXGroup;
+			children = (
+				AA100000000000000000000D /* DeckPickerView.swift */,
+				AA100000000000000000000E /* StudyView.swift */,
+				AA100000000000000000000F /* FlashCardView.swift */,
+			);
+			path = Study;
+			sourceTree = "<group>";
+		};
+		AA3000000000000000000008 /* Browse */ = {
+			isa = PBXGroup;
+			children = (
+				AA1000000000000000000010 /* BrowseView.swift */,
+				AA1000000000000000000011 /* CardDetailView.swift */,
+			);
+			path = Browse;
+			sourceTree = "<group>";
+		};
+		AA3000000000000000000009 /* Progress */ = {
+			isa = PBXGroup;
+			children = (
+				AA1000000000000000000012 /* ProgressView.swift */,
+			);
+			path = Progress;
+			sourceTree = "<group>";
+		};
+		AA300000000000000000000A /* Persistence */ = {
+			isa = PBXGroup;
+			children = (
+				AA1000000000000000000013 /* StudyStore.swift */,
+			);
+			path = Persistence;
+			sourceTree = "<group>";
+		};
+		AA300000000000000000000C /* Preview Content */ = {
+			isa = PBXGroup;
+			children = (
+				AA1000000000000000000015 /* Preview Assets.xcassets */,
+			);
+			name = "Preview Content";
+			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		AA4000000000000000000002 /* InterviewPrep */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = AA4000000000000000000009 /* Build configuration list for PBXNativeTarget "InterviewPrep" */;
+			buildPhases = (
+				AA5000000000000000000001 /* Sources */,
+				AA5000000000000000000003 /* Frameworks */,
+				AA5000000000000000000002 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = InterviewPrep;
+			productName = InterviewPrep;
+			productReference = AA0000000000000000000001 /* InterviewPrep.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		AA4000000000000000000001 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1500;
+				LastUpgradeCheck = 1500;
+				TargetAttributes = {
+					AA4000000000000000000002 = {
+						CreatedOnToolsVersion = 15.0;
+					};
+				};
+			};
+			buildConfigurationList = AA4000000000000000000008 /* Build configuration list for PBXProject "InterviewPrep" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = AA3000000000000000000001;
+			productRefGroup = AA300000000000000000000B /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				AA4000000000000000000002 /* InterviewPrep */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		AA5000000000000000000002 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AA2000000000000000000014 /* Assets.xcassets in Resources */,
+				AA2000000000000000000015 /* Preview Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		AA5000000000000000000001 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AA2000000000000000000001 /* InterviewPrepApp.swift in Sources */,
+				AA2000000000000000000002 /* Card.swift in Sources */,
+				AA2000000000000000000003 /* Deck.swift in Sources */,
+				AA2000000000000000000004 /* StudySession.swift in Sources */,
+				AA2000000000000000000005 /* ConceptCards.swift in Sources */,
+				AA2000000000000000000006 /* LeetCodeCards.swift in Sources */,
+				AA2000000000000000000007 /* DiscussionCards.swift in Sources */,
+				AA2000000000000000000008 /* BehavioralCards.swift in Sources */,
+				AA2000000000000000000009 /* AllDecks.swift in Sources */,
+				AA200000000000000000000A /* StudyViewModel.swift in Sources */,
+				AA200000000000000000000B /* BrowseViewModel.swift in Sources */,
+				AA200000000000000000000C /* MainTabView.swift in Sources */,
+				AA200000000000000000000D /* DeckPickerView.swift in Sources */,
+				AA200000000000000000000E /* StudyView.swift in Sources */,
+				AA200000000000000000000F /* FlashCardView.swift in Sources */,
+				AA2000000000000000000010 /* BrowseView.swift in Sources */,
+				AA2000000000000000000011 /* CardDetailView.swift in Sources */,
+				AA2000000000000000000012 /* ProgressView.swift in Sources */,
+				AA2000000000000000000013 /* StudyStore.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		AA4000000000000000000006 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		AA4000000000000000000007 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		AA4000000000000000000003 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"InterviewPrep/Preview Content\"";
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.interviewprep.app;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		AA4000000000000000000004 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"InterviewPrep/Preview Content\"";
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.interviewprep.app;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		AA4000000000000000000008 /* Build configuration list for PBXProject "InterviewPrep" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AA4000000000000000000006 /* Debug */,
+				AA4000000000000000000007 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		AA4000000000000000000009 /* Build configuration list for PBXNativeTarget "InterviewPrep" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AA4000000000000000000003 /* Debug */,
+				AA4000000000000000000004 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = AA4000000000000000000001 /* Project object */;
+}
