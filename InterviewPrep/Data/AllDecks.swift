@@ -88,10 +88,9 @@ struct DeckCatalog {
         .makeLeetCode(),
         .makeDiscussion(),
         .makeBehavioral(),
-        .makeByDifficulty(.easy),
-        .makeByDifficulty(.medium),
-        .makeByDifficulty(.hard),
     ]
+
+    static let difficultyDecks: [Deck] = Difficulty.allCases.map { .makeByDifficulty($0) }
 
     // Company-specific LeetCode decks
     static let companyDecks: [Deck] = Company.allCases.map { company in

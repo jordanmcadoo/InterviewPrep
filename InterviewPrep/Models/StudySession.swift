@@ -20,6 +20,11 @@ final class StudySession: ObservableObject {
         guard currentIndex < cards.count else { return nil }
         return cards[currentIndex]
     }
+    var nextCard: AnyCard? {
+        let next = currentIndex + 1
+        guard next < cards.count else { return nil }
+        return cards[next]
+    }
 
     var correctCount: Int  { results.values.filter { $0 == .correct }.count }
     var incorrectCount: Int { results.values.filter { $0 == .incorrect }.count }

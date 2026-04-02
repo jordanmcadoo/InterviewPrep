@@ -74,6 +74,8 @@ struct BrowseView: View {
 
 struct CardRowView: View {
     let card: AnyCard
+    @EnvironmentObject var mastery: CardMasteryStore
+    @EnvironmentObject var notesStore: CardNotesStore
 
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
@@ -91,6 +93,17 @@ struct CardRowView: View {
                 difficultyBadge
                 if let lc = card.asLeetCode, !lc.companies.isEmpty {
                     companyBadges(lc.companies)
+                }
+                Spacer()
+                if card.category == .behavioral && notesStore.hasNote(for: card.id) {
+                    Image(systemName: "note.text")
+                        .foregroundStyle(.orange)
+                        .font(.caption)
+                }
+                if mastery.isMastered(card.id) {
+                    Image(systemName: "checkmark.circle.fill")
+                        .foregroundStyle(.green)
+                        .font(.caption)
                 }
             }
         }

@@ -4,23 +4,21 @@ import SwiftUI
 
 struct StudyView: View {
     @ObservedObject var vm: StudyViewModel
+    @EnvironmentObject private var hideStore: CardHideStore
 
     var body: some View {
         Group {
             if vm.showingDeckPicker {
                 DeckPickerView(vm: vm)
             } else if let session = vm.session {
-                if session.isComplete {
-                    CompletionView(session: session, vm: vm)
-                } else {
-                    // ActiveStudyView observes the session directly so it
-                    // re-renders when currentIndex / isComplete change.
-                    ActiveStudyView(session: session, vm: vm)
-                }
+                // ActiveStudyView observes session directly and handles its
+                // own completion routing, since StudyView only observes vm.
+                ActiveStudyView(session: session, vm: vm)
             }
         }
         .navigationTitle("Study")
         .navigationBarTitleDisplayMode(.inline)
+        .onAppear { vm.hideStore = hideStore }
     }
 }
 
@@ -32,32 +30,81 @@ private struct ActiveStudyView: View {
 
     @State private var isFlipped = false
     @State private var dragOffset: CGFloat = 0
+    @State private var showingHideConfirmation = false
 
     var body: some View {
+        if session.isComplete {
+            CompletionView(session: session, vm: vm)
+        } else {
+            cardUI
+        }
+    }
+
+    @ViewBuilder
+    private var cardUI: some View {
         VStack(spacing: 0) {
             progressBar
             Spacer(minLength: 12)
 
-            if let card = session.currentCard {
-                FlashCardView(card: card, isFlipped: $isFlipped)
-                    .padding(.horizontal, 20)
-                    .frame(maxHeight: 460)
-                    .offset(x: dragOffset)
-                    .rotationEffect(.degrees(Double(dragOffset / 20)))
-                    .gesture(swipeGesture)
+            ZStack {
+                // n+1: full opacity, blocked by current card on top
+                if let next = session.nextCard {
+                    FlashCardView(card: next, isFlipped: .constant(false))
+                        .padding(.horizontal, 20)
+                        .frame(maxHeight: 460)
+                        .allowsHitTesting(false)
+                }
+
+                // Current card on top
+                if let card = session.currentCard {
+                    FlashCardView(card: card, isFlipped: $isFlipped)
+                        .overlay(stampOverlay)
+                        .overlay(alignment: .topLeading) { hideButton }
+                        .padding(.horizontal, 20)
+                        .frame(maxHeight: 460)
+                        .offset(x: dragOffset)
+                        .rotationEffect(.degrees(Double(dragOffset / 20)))
+                        .gesture(swipeGesture)
+                }
             }
 
             Spacer(minLength: 16)
-            swipeHints
-            Spacer(minLength: 12)
             actionButtons
                 .padding(.horizontal, 24)
                 .padding(.bottom, 32)
         }
         .onChange(of: session.currentIndex) {
-            isFlipped = false
-            withAnimation(.spring(duration: 0.25)) {
+            var t = Transaction(animation: nil)
+            t.disablesAnimations = true
+            withTransaction(t) {
+                isFlipped = false
                 dragOffset = 0
+            }
+        }
+    }
+
+    // MARK: - Stamp overlay
+
+    private var stampOverlay: some View {
+        ZStack {
+            if dragOffset > 20 {
+                Text("GOT IT")
+                    .font(.system(size: 44, weight: .black, design: .rounded))
+                    .foregroundStyle(.green)
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 8)
+                    .overlay(RoundedRectangle(cornerRadius: 8).stroke(.green, lineWidth: 5))
+                    .rotationEffect(.degrees(-20))
+                    .opacity(Double(min(dragOffset / 80, 1.0)))
+            } else if dragOffset < -20 {
+                Text("MISSED")
+                    .font(.system(size: 44, weight: .black, design: .rounded))
+                    .foregroundStyle(.red)
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 8)
+                    .overlay(RoundedRectangle(cornerRadius: 8).stroke(.red, lineWidth: 5))
+                    .rotationEffect(.degrees(20))
+                    .opacity(Double(min(-dragOffset / 80, 1.0)))
             }
         }
     }
@@ -70,7 +117,7 @@ private struct ActiveStudyView: View {
                 Button("Exit", action: vm.backToDeckPicker)
                     .foregroundStyle(.secondary)
                 Spacer()
-                Text("\(session.currentIndex + 1) / \(session.cards.count)")
+                Text("\(min(session.currentIndex + 1, session.cards.count)) / \(session.cards.count)")
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
             }
@@ -81,21 +128,6 @@ private struct ActiveStudyView: View {
                 .padding(.horizontal, 20)
         }
         .padding(.top, 12)
-    }
-
-    // MARK: - Swipe hints
-
-    private var swipeHints: some View {
-        HStack {
-            Label("Missed", systemImage: "xmark")
-                .font(.caption.weight(.medium))
-                .foregroundStyle(.red.opacity(0.7))
-            Spacer()
-            Label("Got it", systemImage: "checkmark")
-                .font(.caption.weight(.medium))
-                .foregroundStyle(.green.opacity(0.7))
-        }
-        .padding(.horizontal, 40)
     }
 
     // MARK: - Buttons
@@ -112,7 +144,7 @@ private struct ActiveStudyView: View {
             }
 
             Button {
-                withAnimation(.spring(duration: 0.45)) { isFlipped.toggle() }
+                isFlipped.toggle()
             } label: {
                 Image(systemName: "arrow.left.arrow.right")
                     .font(.headline)
@@ -129,6 +161,31 @@ private struct ActiveStudyView: View {
                     .background(Color.green, in: Circle())
                     .shadow(color: .green.opacity(0.3), radius: 8, y: 4)
             }
+        }
+    }
+
+    // MARK: - Hide button
+
+    private var hideButton: some View {
+        Button {
+            showingHideConfirmation = true
+        } label: {
+            Image(systemName: "xmark.circle.fill")
+                .symbolRenderingMode(.palette)
+                .foregroundStyle(.white, Color(.systemGray3))
+                .font(.title3)
+        }
+        .buttonStyle(.plain)
+        .padding(16)
+//        .padding(.top, 8)
+//        .padding(.leading, 8)
+//        .padding(.trailing, 16)
+//        .padding(.bottom, 16)
+        .alert("Remove This Card?", isPresented: $showingHideConfirmation) {
+            Button("Remove", role: .destructive) { vm.hideCurrentCard() }
+            Button("Cancel", role: .cancel) { }
+        } message: {
+            Text("This card will be removed from the deck. You can add it back later from the deck settings.")
         }
     }
 
@@ -238,4 +295,18 @@ private struct CompletionView: View {
         }
         .frame(maxWidth: .infinity)
     }
+}
+
+// MARK: - Preview
+
+#Preview("Active Session") {
+    let mastery = CardMasteryStore()
+    let vm = StudyViewModel(store: StudyStore(), mastery: mastery)
+    vm.start(deck: DeckCatalog.all.first!)
+    return NavigationStack {
+        StudyView(vm: vm)
+    }
+    .environmentObject(mastery)
+    .environmentObject(CardHideStore())
+    .environmentObject(CardNotesStore())
 }

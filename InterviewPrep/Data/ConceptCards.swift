@@ -611,6 +611,81 @@ let uiKitCards: [ConceptCard] = [
         difficulty: .medium,
         topic: .uiKit
     ),
+    ConceptCard(
+        question: "How does UITableView/UICollectionView cell reuse work? What is diffable data source?",
+        answer: """
+        Cell reuse: cells scrolled off screen are placed in a reuse pool keyed by identifier. dequeueReusableCell(withIdentifier:for:) returns a recycled cell (or creates one if the pool is empty), avoiding the cost of allocating and laying out new cells on every scroll frame.
+
+        Correct usage pattern:
+        • Always call dequeueReusableCell — never create cells manually in cellForRow
+        • Reset all state in the cell's prepareForReuse() — cells carry state from their previous use
+        • Register cell classes or nibs before use: tableView.register(MyCell.self, forCellReuseIdentifier: "cell")
+
+        Diffable Data Source (iOS 13+):
+        • Replaces the old delegate data source methods with a snapshot-based API
+        • NSDiffableDataSourceSnapshot describes the full state (sections + items) at a point in time
+        • apply(_:animatingDifferences:) diffs the snapshot automatically — no more manual insertRows/deleteRows
+        • Items must be Hashable; sections must be Hashable
+        • Eliminates "invalid number of rows" crashes from mismatched updates
+
+        When to still use the old delegate: very large dynamic lists where you control diffing manually, or when targeting iOS 12.
+        """,
+        difficulty: .medium,
+        topic: .uiKit
+    ),
+    ConceptCard(
+        question: "What is Auto Layout and how does the constraint system work?",
+        answer: """
+        Auto Layout is a constraint-based layout system. Instead of setting frames directly, you declare relationships between view attributes (leading, trailing, top, bottom, width, height, centerX, centerY, baseline).
+
+        The engine (Cassowary algorithm) solves the constraint system to produce concrete frames at layout time.
+
+        Constraint priorities (1–1000):
+        • Required (1000): must be satisfied or layout breaks
+        • High (750): default content hugging / compression resistance
+        • Low (250): used for "nice to have" constraints
+
+        Content Hugging Priority: resistance to growing larger than intrinsicContentSize
+        Compression Resistance Priority: resistance to shrinking smaller than intrinsicContentSize
+
+        Common pitfalls:
+        • Conflicting required constraints → unsatisfiable layout, runtime warnings
+        • Missing constraints (under-constrained) → ambiguous layout
+        • Modifying constraints in viewDidLoad before the layout pass — use updateConstraints or layoutIfNeeded
+
+        Performance: overly complex constraint graphs (100s of constraints) can slow layout. Prefer fewer, well-chosen constraints. NSLayoutAnchor API is cleaner and safer than NSLayoutConstraint directly.
+        """,
+        difficulty: .medium,
+        topic: .uiKit
+    ),
+    ConceptCard(
+        question: "How do UIView animations work? What is the difference between UIView.animate and Core Animation?",
+        answer: """
+        UIView.animate is a high-level API that animates animatable properties (frame, alpha, backgroundColor, transform) by:
+        1. Snapshotting the initial state
+        2. Applying the final state immediately to the model layer
+        3. Adding a CAAnimation to interpolate the presentation layer over the duration
+
+            UIView.animate(withDuration: 0.3, animations: {
+                view.alpha = 0
+            }, completion: { _ in view.removeFromSuperview() })
+
+        Core Animation (CAAnimation):
+        • Lower level — you manipulate CALayer properties directly
+        • Runs on a separate render server process — doesn't block the main thread
+        • Presentation layer: the layer's in-flight animated state; model layer: the true final state
+        • Enables more control: keyframe paths, timing functions, grouping, fill modes
+
+        UIViewPropertyAnimator (iOS 10+):
+        • Interruptible, scrubbable animations
+        • Can pause, reverse, or change target mid-flight
+        • Useful for gesture-driven transitions (pan to dismiss)
+
+        Key rule: Core Animation operates on copies of layer state — reading back a property mid-animation gives you the model value, not the visible position. Read .presentation()?.position for the in-flight value.
+        """,
+        difficulty: .medium,
+        topic: .uiKit
+    ),
 ]
 
 // MARK: - Networking
@@ -658,6 +733,57 @@ let networkingCards: [ConceptCard] = [
         Error handling: DecodingError.keyNotFound, .typeMismatch, .valueNotFound — always handle these to surface API contract violations.
 
         Performance: Codable has overhead from reflection-like mechanisms. For very high-throughput parsing consider manual init(from:) or alternatives like Swift's binary formats.
+        """,
+        difficulty: .medium,
+        topic: .networking
+    ),
+    ConceptCard(
+        question: "What is certificate pinning and when should you use it?",
+        answer: """
+        Certificate pinning validates that the server's certificate (or its public key) matches a known-good value embedded in the app, defeating MITM attacks even from a trusted CA.
+
+        Implementation in iOS:
+        • URLSession delegate: urlSession(_:didReceive:completionHandler:) — inspect the server trust, extract the certificate, compare against bundled data
+        • TrustKit or Network.framework's sec_protocol_options_set_tls_server_name_override are common alternatives
+
+        Two pinning strategies:
+        • Certificate pinning: pin the full certificate. Simple but breaks when the cert rotates.
+        • Public key pinning: pin only the public key (SubjectPublicKeyInfo). Survives certificate renewal as long as the key pair stays the same — preferred.
+
+        Tradeoffs:
+        • Pros: strong protection against MITM, rogue CAs, network interception proxies
+        • Cons: requires a certificate rotation strategy; misconfiguration bricks your networking; complicates testing (proxies like Charles require disabling the pin or using a test build)
+
+        When to use: fintech, healthcare, apps handling sensitive credentials or high-value transactions. Not necessary for low-risk content apps.
+        """,
+        difficulty: .hard,
+        topic: .networking
+    ),
+    ConceptCard(
+        question: "How do you handle pagination when consuming a REST API?",
+        answer: """
+        Common pagination strategies from APIs:
+
+        1. Offset/limit: ?page=2&per_page=20. Simple but has gaps/duplicates if items are inserted mid-scroll.
+        2. Cursor-based: ?after=cursor_token. Server returns an opaque cursor pointing to the next page. More stable for real-time feeds.
+        3. Link headers: response headers include a rel="next" URL (GitHub API style).
+
+        iOS implementation patterns:
+        • Track isLoading and currentPage/cursor in the ViewModel to avoid duplicate requests
+        • Trigger next page fetch when the user scrolls near the bottom (prefetchRowsAt in UITableView, or onAppear on the last item in SwiftUI)
+        • Handle the end-of-list state (no next cursor/empty page) to stop fetching
+        • Append new results to an existing array; don't replace — prevents scroll position jumping
+
+        async/await pattern:
+            func loadNextPage() async {
+                guard !isLoading, hasMorePages else { return }
+                isLoading = true
+                defer { isLoading = false }
+                let page = try await api.fetch(cursor: nextCursor)
+                items += page.results
+                nextCursor = page.nextCursor
+                hasMorePages = nextCursor != nil
+            }
         """,
         difficulty: .medium,
         topic: .networking
@@ -736,6 +862,58 @@ let architectureCards: [ConceptCard] = [
         difficulty: .medium,
         topic: .architecture
     ),
+    ConceptCard(
+        question: "Explain the SOLID principles with iOS/Swift examples.",
+        answer: """
+        S — Single Responsibility: a type should have one reason to change. A ViewController shouldn't also parse JSON; a NetworkClient shouldn't also cache.
+
+        O — Open/Closed: open for extension, closed for modification. Add behavior via protocol conformance or subclassing rather than editing existing code. Example: new payment methods via a PaymentMethod protocol rather than adding switch cases.
+
+        L — Liskov Substitution: subtypes must be substitutable for their base types without altering correctness. In Swift: protocol conformances must truly satisfy the contract, not just compile.
+
+        I — Interface Segregation: prefer narrow, role-specific protocols over wide ones.
+            protocol Readable { func read() -> Data }
+            protocol Writable { func write(_ data: Data) }
+        A read-only cache conforms to Readable only, not a bloated StorageProtocol.
+
+        D — Dependency Inversion: depend on abstractions, not concrete types.
+            class ProfileViewModel {
+                let service: UserServiceProtocol  // not URLSession directly
+            }
+        This is the foundation of testability — swap in a mock UserServiceProtocol in tests.
+
+        Senior tip: SOLID principles are a means to an end (maintainable, testable code), not rules to follow rigidly. In very simple iOS screens, strict adherence adds ceremony with no payoff.
+        """,
+        difficulty: .medium,
+        topic: .architecture
+    ),
+    ConceptCard(
+        question: "What is unidirectional data flow? How does TCA (The Composable Architecture) implement it?",
+        answer: """
+        Unidirectional data flow: state flows in one direction. Views dispatch actions → a reducer transforms state → views re-render from the new state. No two-way bindings, no hidden state mutations.
+
+        TCA structure:
+        • State: a struct holding all feature state
+        • Action: an enum of every event that can occur (user taps, network responses, timers)
+        • Reducer: a pure function (State, Action) → (State, Effect). Returns the new state and any side effects (async work, navigation)
+        • Effect: async work that eventually yields more Actions
+        • Store: the runtime — holds state, processes actions through the reducer
+
+        Benefits:
+        • Exhaustive testability: feed actions into a TestStore, assert state transforms precisely
+        • Composability: combine child features into parent features by pulling back reducers
+        • Debuggability: every state change is traceable to a single action
+
+        Tradeoffs:
+        • Steep learning curve; significant boilerplate for simple screens
+        • Overkill for CRUD apps with minimal cross-feature state sharing
+        • Alternatives: simple @Observable ViewModels for most SwiftUI apps; TCA shines in large teams with complex state interactions
+
+        Redux, Flux, and The Elm Architecture share the same unidirectional principle.
+        """,
+        difficulty: .hard,
+        topic: .architecture
+    ),
 ]
 
 // MARK: - Testing
@@ -790,6 +968,66 @@ let testingCards: [ConceptCard] = [
         difficulty: .medium,
         topic: .testing
     ),
+    ConceptCard(
+        question: "How do you mock dependencies in Swift tests? What are the trade-offs of different approaches?",
+        answer: """
+        Protocol-based mocking (most common in Swift):
+        Define a protocol for the dependency, inject it, then create a mock conformance in tests.
+
+            protocol UserServiceProtocol {
+                func fetchUser(id: String) async throws -> User
+            }
+            class MockUserService: UserServiceProtocol {
+                var stubbedUser: User?
+                var fetchCallCount = 0
+                func fetchUser(id: String) async throws -> User {
+                    fetchCallCount += 1
+                    return stubbedUser!
+                }
+            }
+
+        Advantages: no third-party library, explicit, type-safe.
+        Disadvantage: protocol must exist even if just for testing; can proliferate boilerplate.
+
+        URLProtocol subclass: intercept URLSession requests without changing production code at all. Great for integration-level network tests.
+
+        @testable import: exposes internal types to tests without making them public. Use for testing internal logic without adding protocols just for testability.
+
+        Libraries: Mockingbird (generates mocks at build time), swift-mock — reduce boilerplate but add build complexity.
+
+        What interviewers listen for: injecting dependencies via init (not singletons), asserting both return values AND side effects (call counts, passed arguments), and keeping tests isolated.
+        """,
+        difficulty: .medium,
+        topic: .testing
+    ),
+    ConceptCard(
+        question: "What is snapshot testing and when is it useful?",
+        answer: """
+        Snapshot testing renders a view (or any value) to a reference artifact (image, string, JSON) and fails if the output changes. The first run records the snapshot; subsequent runs compare against it.
+
+        Libraries: swift-snapshot-testing (pointfree), iOSSnapshotTestCase (Uber/FB).
+
+        How it works for views:
+        1. Render a UIView or SwiftUI view to an image using the snapshot library
+        2. On first run: save the image as a reference PNG in the test bundle
+        3. On future runs: compare pixel-by-pixel (or perceptually) against the reference
+
+        Good use cases:
+        • Preventing unintended visual regressions in design-system components
+        • Verifying layout across different Dynamic Type sizes, dark/light mode, locales
+        • Documenting the visual contract of reusable components
+
+        Tradeoffs:
+        • Snapshots are fragile to rendering environment changes (OS update, font changes, anti-aliasing) — can produce false failures
+        • Must be regenerated intentionally when designs change
+        • Large binary files in source control unless stored externally
+        • Slow compared to pure unit tests
+
+        Best practice: use for leaf UI components with stable designs; not for every screen. Pair with unit tests for logic and behavior.
+        """,
+        difficulty: .medium,
+        topic: .testing
+    ),
 ]
 
 // MARK: - Performance
@@ -839,17 +1077,877 @@ let performanceCards: [ConceptCard] = [
         difficulty: .medium,
         topic: .performance
     ),
+    ConceptCard(
+        question: "How do you optimize app launch time?",
+        answer: """
+        Launch phases:
+        1. Pre-main: dylib loading, Objective-C class registration, Swift initializers. Measured with DYLD_PRINT_STATISTICS.
+        2. application(_:didFinishLaunchingWithOptions:): your code. Measured with MetricKit or Instruments → App Launch.
+        3. First meaningful frame: initial view hierarchy rendered.
+
+        Pre-main optimizations:
+        • Reduce dynamic framework count — each dylib adds ~1–5ms
+        • Eliminate unnecessary static initializers (+load, global Swift stored properties with non-trivial initializers)
+        • Use lazy initialization for anything not needed at first frame
+
+        didFinishLaunching optimizations:
+        • Defer non-critical setup (analytics, push registration, feature flags) off the main thread or after first frame
+        • Lazy-initialize services on first use rather than eagerly in app delegate
+        • Avoid synchronous disk/network I/O on main thread during launch
+
+        Measurement tools:
+        • Instruments → App Launch template: flame chart from process start to first frame
+        • MetricKit / Xcode Organizer → Launch Time: real-user p50/p90 launch times from production
+
+        Target: < 400ms to first meaningful frame (Apple's guideline for avoiding the watchdog timer on launch).
+        """,
+        difficulty: .medium,
+        topic: .performance
+    ),
+]
+
+// MARK: - Swift Fundamentals (additional)
+
+extension Array where Element == ConceptCard {
+    // intentionally empty — used as a namespace anchor
+}
+
+let swiftFundamentalsAdditionalCards: [ConceptCard] = [
+    ConceptCard(
+        question: "What are Swift's access control levels and when do you use each?",
+        answer: """
+        Swift has five access levels, from most to least restrictive:
+
+        • private — accessible only within the enclosing declaration and its extensions in the same file
+        • fileprivate — accessible anywhere in the same source file
+        • internal (default) — accessible within the same module (app or framework target)
+        • public — accessible from any module, but subclassing/overriding is restricted to the defining module
+        • open — accessible and subclassable/overridable from any module
+
+        Key distinctions:
+        • open vs public: public classes cannot be subclassed outside the module; open ones can. Use public for most APIs; open only when you explicitly intend external subclassing.
+        • private vs fileprivate: prefer private by default. Use fileprivate when extensions in the same file need access.
+
+        Practical rules:
+        • Default to the most restrictive level that works
+        • Framework authors: mark public API as public/open explicitly; everything else stays internal
+        • @testable import makes internal declarations visible to test targets
+
+        Common interview trap: "What's the difference between public and open?" — open allows external subclassing; public does not.
+        """,
+        difficulty: .medium,
+        topic: .swiftFundamentals
+    ),
+    ConceptCard(
+        question: "What are enumerations with associated values in Swift? How do they compare to tagged unions?",
+        answer: """
+        Swift enums can attach values of any type to each case, making them algebraic sum types (tagged unions):
+
+            enum NetworkError: Error {
+                case badStatusCode(Int)
+                case decodingFailed(DecodingError)
+                case offline
+            }
+
+            enum Shape {
+                case circle(radius: Double)
+                case rectangle(width: Double, height: Double)
+                case point
+            }
+
+        Extracting values via pattern matching:
+            switch error {
+            case .badStatusCode(let code): print("HTTP \\(code)")
+            case .decodingFailed(let e):   print(e)
+            case .offline:                 break
+            }
+
+        if case / guard case for single-case matching:
+            if case .circle(let r) = shape { ... }
+
+        Raw values vs associated values:
+        • Raw values: all cases share the same primitive type (String, Int); set at compile time
+        • Associated values: each case can carry different types; set at runtime
+
+        Why this matters: enums with associated values model domain state precisely — impossible states become unrepresentable. Classic example: Result<Success, Failure>, Optional<T>.
+
+        Indirect enums: for recursive types (linked lists, trees), mark cases or the whole enum indirect to allow heap allocation.
+        """,
+        difficulty: .medium,
+        topic: .swiftFundamentals
+    ),
+    ConceptCard(
+        question: "What is the guard statement and why is it preferred over nested if-let?",
+        answer: """
+        guard evaluates a condition and exits the current scope (return, throw, break, continue) if the condition is false. Bindings introduced by guard let are available for the rest of the enclosing scope — the opposite of if let.
+
+            func process(user: User?) throws {
+                guard let user = user else { throw AppError.notLoggedIn }
+                guard user.isActive else { return }
+                // user is non-optional here and for the rest of the function
+                render(user)
+            }
+
+        Why prefer guard over nested if let:
+        • Avoids "pyramid of doom" — each guard exits early, keeping the happy path at the top level
+        • Bindings are in scope after the guard, so you don't nest inside braces
+        • Communicates intent: "this must be true to continue"
+
+        guard vs if let:
+        • Use guard when a nil/false value means you can't proceed — early exit
+        • Use if let when nil is a valid branch you want to handle inline
+
+        guard with multiple conditions:
+            guard let name = user.name, !name.isEmpty, name.count < 100 else { return }
+        All bindings are available after the guard if all conditions pass.
+        """,
+        difficulty: .easy,
+        topic: .swiftFundamentals
+    ),
+    ConceptCard(
+        question: "How does error handling work in Swift? Explain do/try/catch, defer, and rethrows.",
+        answer: """
+        Swift uses typed, synchronous error propagation via throws:
+
+            func fetchData(from url: URL) throws -> Data {
+                guard url.scheme == "https" else { throw NetworkError.insecureURL }
+                return try Data(contentsOf: url)
+            }
+
+        do/try/catch:
+            do {
+                let data = try fetchData(from: url)
+                process(data)
+            } catch NetworkError.insecureURL {
+                // specific case
+            } catch {
+                // catch-all; error is bound to `error`
+            }
+
+        try variants:
+        • try — propagates the error; must be inside a throws function or do/catch
+        • try? — converts to Optional; nil on failure, no error info
+        • try! — force-unwrap; crashes on error; avoid except in guaranteed contexts
+
+        defer: executes a block when the current scope exits, regardless of how (normal return, throw, break). Useful for cleanup:
+            func open() throws {
+                let file = try openFile()
+                defer { file.close() }   // always called
+                try process(file)
+            }
+        Multiple defers execute in LIFO order.
+
+        rethrows: a function that takes a throwing closure and only throws if the closure throws. Lets callers use try or not based on whether they pass a throwing closure:
+            func map<T>(_ transform: (Element) throws -> T) rethrows -> [T]
+
+        Error types: conform to the Error protocol. Swift 5.7+ typed throws (throws(MyError)) are available for precise error types without boxing overhead.
+        """,
+        difficulty: .medium,
+        topic: .swiftFundamentals
+    ),
+    ConceptCard(
+        question: "What are property observers (willSet / didSet) and when should you use them?",
+        answer: """
+        Property observers let you run code in response to a stored property changing value.
+
+            var score: Int = 0 {
+                willSet { print("About to change to \\(newValue)") }
+                didSet  { print("Changed from \\(oldValue)") }
+            }
+
+        • willSet: called before the value changes; newValue is the incoming value
+        • didSet: called after the value changes; oldValue is the previous value
+        • Not called during initialization
+
+        Common use cases:
+        • Syncing UI when a model property changes (pre-Combine/SwiftUI era)
+        • Clamping or validating values after assignment
+        • Triggering side effects (logging, saving) on change
+
+            var username: String = "" {
+                didSet { validate(); save() }
+            }
+
+        Tradeoffs vs @Published / Combine:
+        • Property observers are synchronous and tightly coupled to the type — fine for simple cases
+        • @Published + Combine or @Observable provide reactive pipelines with operators (debounce, map, etc.) — prefer for UI binding
+
+        Important: if you pass a property with a didSet to an inout parameter, didSet fires after the function returns (copy-in/copy-out semantics).
+        """,
+        difficulty: .easy,
+        topic: .swiftFundamentals
+    ),
+    ConceptCard(
+        question: "Explain copy-on-write (COW) in Swift. How does it work and which types use it?",
+        answer: """
+        Copy-on-write is an optimization where value types defer the actual memory copy until a mutation occurs. If a copy is made but never mutated, both variables share the same underlying buffer.
+
+        How it works:
+        1. On assignment, both variables point to the same heap buffer (no copy yet)
+        2. On mutation, Swift checks the reference count of the buffer
+        3. If refcount == 1 (only one owner): mutate in place — no copy
+        4. If refcount > 1 (shared): copy the buffer first, then mutate
+
+        Standard library types with COW: Array, Dictionary, Set, String, Data.
+
+        Custom COW — you must implement it yourself for custom value types wrapping a class:
+            struct MyBuffer {
+                private var storage: Storage  // class, heap-allocated
+                mutating func mutate() {
+                    if !isKnownUniquelyReferenced(&storage) {
+                        storage = Storage(copying: storage)
+                    }
+                    storage.modify()
+                }
+            }
+
+        Why it matters: large collections can be passed around freely without hidden O(n) copies. Mutation is still O(n) when a copy is needed, but reads and non-mutating passes are O(1).
+
+        Interview trap: "Are Swift value types always stack-allocated?" — No. Large value types and COW types have their data on the heap; the "value" is just the inline struct (which may be tiny).
+        """,
+        difficulty: .medium,
+        topic: .swiftFundamentals
+    ),
+    ConceptCard(
+        question: "What is the difference between Any and AnyObject in Swift?",
+        answer: """
+        Any: can represent an instance of any type — class, struct, enum, function, Optional, or even another Any.
+
+        AnyObject: can represent an instance of any class type only (reference types). It's the Swift equivalent of Objective-C's id.
+
+            var mixed: [Any] = [1, "hello", true, { }]
+            var objects: [AnyObject] = [UIView(), NSString()]
+
+        When are they used?
+        • Any: heterogeneous collections, bridging to untyped APIs, JSON parsing intermediates
+        • AnyObject: ObjC interop, class-only protocol constraints (protocol P: AnyObject)
+
+        Downcasting from Any:
+            if let str = value as? String { ... }
+
+        Pitfall — Optionals in Any:
+            let x: Int? = nil
+            let y: Any = x          // y is Any wrapping Optional<Int>.none
+            print(y)                // prints "nil" but y itself is not nil!
+        The compiler warns: "expression implicitly coerced from 'Int?' to 'Any'".
+
+        AnyObject and class-only protocols:
+        • Marking a protocol : AnyObject restricts conformance to classes, enabling weak references to protocol-typed values.
+        • @objc protocols implicitly require AnyObject.
+        """,
+        difficulty: .medium,
+        topic: .swiftFundamentals
+    ),
+    ConceptCard(
+        question: "What is @autoclosure and when would you use it?",
+        answer: """
+        @autoclosure automatically wraps an expression passed as an argument into a zero-argument closure, deferring its evaluation until the closure is called.
+
+        Without @autoclosure:
+            func logIfEnabled(_ message: () -> String) {
+                if loggingEnabled { print(message()) }
+            }
+            logIfEnabled({ "Expensive: \\(compute())" })  // must wrap in closure
+
+        With @autoclosure:
+            func logIfEnabled(_ message: @autoclosure () -> String) {
+                if loggingEnabled { print(message()) }
+            }
+            logIfEnabled("Expensive: \\(compute())")  // looks like a value, evaluated lazily
+
+        Real-world uses:
+        • assert(_:_:): the message argument is @autoclosure so string interpolation only runs if assertions are enabled
+        • ?? nil coalescing: the right-hand default value is @autoclosure to avoid evaluating it when the left side is non-nil
+        • Lazy logging frameworks
+
+        Combining with @escaping:
+            func store(_ value: @autoclosure @escaping () -> Int) { ... }
+        The closure can then be stored and called later.
+
+        Caution: @autoclosure hides the fact that an argument is captured as a closure, which can surprise callers expecting eager evaluation. Use sparingly and document the deferred evaluation clearly.
+        """,
+        difficulty: .medium,
+        topic: .swiftFundamentals
+    ),
+    ConceptCard(
+        question: "How does @available work and how do you handle backward compatibility?",
+        answer: """
+        @available marks declarations as available only on certain platform versions, producing compiler errors or warnings when used outside those bounds.
+
+        Restricting a declaration:
+            @available(iOS 16, *)
+            func useNavigationStack() { ... }
+
+        Conditionally executing code with #available:
+            if #available(iOS 16, *) {
+                useNavigationStack()
+            } else {
+                useLegacyNavigation()
+            }
+
+        Or with guard:
+            guard #available(iOS 16, *) else { return }
+
+        Deprecation and renaming:
+            @available(iOS, deprecated: 15, renamed: "newMethod()")
+            func oldMethod() { }
+
+        Marking as unavailable:
+            @available(*, unavailable, message: "Use async variant instead")
+            func syncFetch() { }
+
+        Deployment target vs availability:
+        • Deployment target: the minimum OS your app supports — set in project settings
+        • Any API newer than the deployment target requires an #available guard at call sites
+        • Xcode flags missing guards as errors
+
+        Best practices:
+        • Use #available + fallback rather than raising the deployment target if the feature is non-essential
+        • Extract platform-specific code into dedicated functions annotated with @available to keep call sites clean
+        • @backDeployed(before:) (Swift 5.8+) lets you ship implementations for older OS versions from your own framework
+        """,
+        difficulty: .medium,
+        topic: .swiftFundamentals
+    ),
+    ConceptCard(
+        question: "What is KVO (Key-Value Observing) and when is it still relevant?",
+        answer: """
+        KVO is an Objective-C-derived mechanism for observing changes to object properties without subclassing or modifying the observed class. The runtime patches the class to call observation callbacks on property changes.
+
+        Modern Swift KVO:
+            class Tracker: NSObject {
+                @objc dynamic var speed: Double = 0
+            }
+
+            let tracker = Tracker()
+            let observation = tracker.observe(\\.speed, options: [.old, .new]) { obj, change in
+                print("speed: \\(change.newValue!)")
+            }
+            // observation token keeps subscription alive; cancel by storing nil
+
+        Requirements:
+        • The observed class must inherit from NSObject
+        • The property must be marked @objc dynamic
+
+        When KVO is still relevant:
+        • Observing system/framework properties you don't own (AVPlayer.status, WKWebView.estimatedProgress, SCNNode.transform)
+        • Bridging with Objective-C code that already uses KVO
+        • CALayer and Core Animation properties
+
+        Prefer Combine / @Observable for new Swift code. KVO is mainly for cases where you can't change the observed class.
+
+        KVC (Key-Value Coding): accessing properties by string key path (object.value(forKey: "name")). Needed for predicate-based Core Data fetches and some ObjC APIs. Type-unsafe — avoid in pure Swift code.
+        """,
+        difficulty: .medium,
+        topic: .swiftFundamentals
+    ),
+    ConceptCard(
+        question: "What is NotificationCenter and what are its pitfalls?",
+        answer: """
+        NotificationCenter is a broadcast mechanism: objects post named notifications; observers registered for that name receive them. Decouples sender from receiver — they don't need references to each other.
+
+        Posting:
+            NotificationCenter.default.post(name: .dataRefreshed, object: self, userInfo: ["count": 42])
+
+        Observing (block-based, preferred):
+            let token = NotificationCenter.default.addObserver(
+                forName: .dataRefreshed, object: nil, queue: .main
+            ) { notification in
+                // handle
+            }
+            // store `token` and remove when done:
+            NotificationCenter.default.removeObserver(token)
+
+        Observing (selector-based, ObjC style):
+            NotificationCenter.default.addObserver(self, selector: #selector(handle(_:)), name: .dataRefreshed, object: nil)
+            // Must call removeObserver(self) in deinit
+
+        Pitfalls:
+        1. Forgetting to remove observers → dangling callbacks, potential crashes (selector-based) or memory leaks (block-based tokens)
+        2. No type safety — userInfo is [AnyHashable: Any]; cast errors are runtime
+        3. Delivery thread is unspecified unless you pass queue: .main
+        4. Hidden coupling — hard to trace who posts/observes what in a large codebase
+
+        Prefer Combine / @Observable for new code. NotificationCenter is appropriate for system notifications (UIApplication.didBecomeActiveNotification, UIKeyboardWillShowNotification) that Apple posts and you observe.
+        """,
+        difficulty: .medium,
+        topic: .swiftFundamentals
+    ),
+]
+
+// MARK: - App Lifecycle
+
+let appLifecycleCards: [ConceptCard] = [
+    ConceptCard(
+        question: "What is the difference between AppDelegate and SceneDelegate? How does multi-scene work?",
+        answer: """
+        Prior to iOS 13, AppDelegate managed the single app window and all lifecycle events. iOS 13 introduced SceneDelegate to support multiple windows (scenes) on iPad and Mac Catalyst.
+
+        AppDelegate responsibilities (still):
+        • Application launch (didFinishLaunchingWithOptions) — one-time setup, dependencies, push token registration
+        • Remote notifications, background fetch, URL handling
+        • App-level state (not per-scene)
+
+        SceneDelegate responsibilities:
+        • Per-scene window and UI setup (scene(_:willConnectTo:options:))
+        • Scene foreground/background transitions:
+          - sceneDidBecomeActive / sceneWillResignActive — fine-grained active state
+          - sceneWillEnterForeground / sceneDidEnterBackground
+
+        Multi-scene support (UIApplicationSupportsMultipleScenes = true in Info.plist):
+        • Each scene gets its own SceneDelegate instance and UIWindow
+        • iPad users can run two instances of your app side-by-side
+        • State restoration is per-scene (NSUserActivity)
+
+        SwiftUI apps (@main App struct):
+        • Use WindowGroup / Window scene types — no AppDelegate/SceneDelegate required
+        • @UIApplicationDelegateAdaptor to bridge AppDelegate callbacks when needed
+        • Scene phases: @Environment(\\.scenePhase) — .active, .inactive, .background
+
+        Common mistake: doing per-scene UI setup in AppDelegate — it runs before any scene is connected, so UIWindow doesn't exist yet.
+        """,
+        difficulty: .medium,
+        topic: .appLifecycle
+    ),
+]
+
+// MARK: - Architecture (additional)
+
+let architectureAdditionalCards: [ConceptCard] = [
+    ConceptCard(
+        question: "What is the Singleton pattern? What are its trade-offs in iOS?",
+        answer: """
+        A singleton ensures a class has exactly one instance, accessed via a global point. Swift idiom:
+
+            final class NetworkManager {
+                static let shared = NetworkManager()
+                private init() { }
+            }
+
+        Benefits:
+        • Convenient global access — no need to pass the instance through every layer
+        • Shared state: useful for app-wide resources (URLSession.shared, UserDefaults.standard, NotificationCenter.default)
+
+        Trade-offs:
+        • Hidden dependencies — callers reach into global state without declaring a dependency, making code harder to reason about
+        • Untestable — tests can't inject a substitute; shared mutable state causes test ordering issues
+        • Tight coupling — changing the singleton affects every consumer
+        • Concurrency risks — shared mutable state across threads needs synchronization
+
+        When singletons are appropriate:
+        • Stateless utilities or when the "one instance" nature is truly a domain constraint
+        • Apple's own singletons (URLSession.shared, UIApplication.shared) wrap system resources that are inherently singular
+
+        Better alternatives:
+        • Dependency injection — pass the dependency into the initializer, allowing test doubles
+        • Service locator (slightly better than singleton; still has hidden-dependency problems)
+        • Environment objects in SwiftUI
+
+        Senior tip: replacing singletons with protocol-typed injected dependencies is one of the highest-ROI refactors for testability.
+        """,
+        difficulty: .medium,
+        topic: .architecture
+    ),
+    ConceptCard(
+        question: "What is VIPER and how does it compare to MVVM?",
+        answer: """
+        VIPER is a Clean Architecture-inspired pattern with five layers:
+
+        • View — passive UI; forwards events to the Presenter
+        • Interactor — contains business logic; fetches/processes data; calls back Presenter
+        • Presenter — mediates between View and Interactor; formats data for display; handles navigation via Router
+        • Entity — plain data models (no business logic)
+        • Router — handles navigation/module creation; constructs the VIPER stack
+
+        Data flow: View → Presenter → Interactor → (back) → Presenter → View. Router wired by Presenter.
+
+        Compared to MVVM:
+        | | MVVM | VIPER |
+        |---|---|---|
+        | Layers | 3 (Model, VM, View) | 5 |
+        | Navigation | In ViewModel or Coordinator | Router layer |
+        | Business logic | ViewModel | Interactor |
+        | Complexity | Low-medium | High |
+        | Boilerplate | Medium | High |
+        | Testability | Good | Very good |
+
+        When VIPER makes sense:
+        • Large teams where strict boundaries prevent stepping on each other
+        • Complex features with significant business logic distinct from presentation
+        • Codebases with dedicated QA requiring high unit-test coverage per layer
+
+        When it doesn't: small apps, solo projects, or when the overhead outweighs the benefit. MVVM + Coordinator covers most iOS apps well. VIPER shines in enterprise codebases with well-defined module boundaries.
+        """,
+        difficulty: .hard,
+        topic: .architecture
+    ),
+]
+
+// MARK: - Networking (additional)
+
+let networkingAdditionalCards: [ConceptCard] = [
+    ConceptCard(
+        question: "What are the caching strategies available in iOS networking?",
+        answer: """
+        URLCache (HTTP caching):
+        • Built into URLSession; caches responses according to HTTP Cache-Control headers
+        • In-memory + on-disk storage configurable via URLCache(memoryCapacity:diskCapacity:directory:)
+        • URLSessionConfiguration.urlCache — set a custom cache per session
+        • Controlled by Cache-Control, Expires, ETag, Last-Modified headers from the server
+        • URLRequest.cachePolicy overrides default behavior per-request:
+          - .useProtocolCachePolicy (default)
+          - .reloadIgnoringLocalCacheData (always fetch)
+          - .returnCacheDataElseLoad (offline fallback)
+
+        NSCache (in-memory object cache):
+        • Key-value store that automatically evicts under memory pressure
+        • Not persisted to disk; cleared on app termination
+        • Ideal for decoded images, rendered thumbnails, expensive computed objects
+        • Thread-safe; keys must be AnyObject (use NSString, not String)
+
+            let imageCache = NSCache<NSString, UIImage>()
+            imageCache.countLimit = 100
+
+        Custom disk cache:
+        • Write decoded data to Library/Caches/ — the OS can purge it; not backed up
+        • Use FileManager + hashed URL strings as filenames
+        • Libraries: Kingfisher (images), Nuke — handle multi-level caching automatically
+
+        Choosing a strategy:
+        • API responses with Cache-Control → let URLCache handle it automatically
+        • Images / large blobs → NSCache (memory) + disk cache
+        • Offline-first apps → explicit disk persistence (Core Data / SQLite + sync)
+        """,
+        difficulty: .medium,
+        topic: .networking
+    ),
+]
+
+// MARK: - Security
+
+let securityCards: [ConceptCard] = [
+    ConceptCard(
+        question: "How do you store sensitive data securely on iOS? Explain the Keychain.",
+        answer: """
+        The Keychain is the recommended store for secrets: passwords, tokens, keys, certificates. It is:
+        • Encrypted at rest by the OS
+        • Protected by the device passcode / Secure Enclave
+        • Persists across app reinstalls (unlike UserDefaults)
+        • Shareable across apps via Keychain Access Groups (requires entitlement)
+
+        Basic read/write using Security framework:
+            // Write
+            let query: [CFString: Any] = [
+                kSecClass: kSecClassGenericPassword,
+                kSecAttrService: "com.myapp.token",
+                kSecAttrAccount: "user",
+                kSecValueData: tokenData
+            ]
+            SecItemAdd(query as CFDictionary, nil)
+
+            // Read
+            var result: AnyObject?
+            let readQuery: [CFString: Any] = [
+                kSecClass: kSecClassGenericPassword,
+                kSecAttrService: "com.myapp.token",
+                kSecAttrAccount: "user",
+                kSecReturnData: true,
+                kSecMatchLimit: kSecMatchLimitOne
+            ]
+            SecItemCopyMatching(readQuery as CFDictionary, &result)
+
+        Accessibility levels (kSecAttrAccessible):
+        • kSecAttrAccessibleWhenUnlocked — only when device unlocked (most common for tokens)
+        • kSecAttrAccessibleAfterFirstUnlock — available in background after first unlock since restart (background networking)
+        • Never use kSecAttrAccessibleAlways — unencrypted
+
+        Libraries: KeychainAccess, SwiftKeychainWrapper — wrap the verbose C API.
+
+        What NOT to use for sensitive data:
+        • UserDefaults — unencrypted plist
+        • Documents/ or files without Data Protection
+        • NSURLCredentialStorage — less control over accessibility
+        """,
+        difficulty: .medium,
+        topic: .security
+    ),
+    ConceptCard(
+        question: "What are iOS app security best practices?",
+        answer: """
+        Data at rest:
+        • Keychain for secrets (tokens, passwords, keys)
+        • Enable Data Protection (NSFileProtectionComplete) for sensitive files
+        • Never store PII in UserDefaults or unprotected files
+        • Clear sensitive data from memory promptly (zero out buffers)
+
+        Data in transit:
+        • App Transport Security (ATS) enforces HTTPS by default — never disable NSAllowsArbitraryLoads in production
+        • Certificate/public-key pinning for high-value endpoints
+        • Validate server certificates; never override URLSession delegate to blindly accept all
+
+        Code and binary:
+        • Enable Pointer Authentication Codes (PAC) — default on arm64e
+        • Strip debug symbols from release builds
+        • Avoid logging sensitive values (tokens, PII) — use os_log with privacy annotations: os_log("token: %{private}@", token)
+
+        Input validation:
+        • Validate all data from external sources (network, pasteboard, URL schemes, shared containers)
+        • Sanitize inputs used in Core Data predicates, SQL queries, or shell commands
+
+        Jailbreak / tampering detection:
+        • Check for suspicious file paths, dylib injection, or process flags
+        • Do not rely on this as the sole security layer — treat it as defense-in-depth
+
+        Secrets management:
+        • Never hardcode API keys in source code — use xcconfig files excluded from version control, or server-side proxying
+        • Rotate secrets; revoke compromised tokens server-side
+
+        Privacy:
+        • Request only the permissions you need (camera, location, contacts)
+        • Use on-demand resources or server-side processing to avoid storing sensitive data on device longer than needed
+        """,
+        difficulty: .medium,
+        topic: .security
+    ),
+]
+
+// MARK: - Tooling
+
+let toolingCards: [ConceptCard] = [
+    ConceptCard(
+        question: "Compare CocoaPods, Carthage, and Swift Package Manager.",
+        answer: """
+        CocoaPods:
+        • Ruby-based; uses a Podfile and centralized Specs repo
+        • Integrates by modifying the Xcode workspace — adds a Pods project
+        • Huge ecosystem; supports almost every library
+        • Downsides: requires Ruby toolchain, modifies project files heavily, slow pod install on large dependency trees, ties you to its workspace structure
+
+        Carthage:
+        • Decentralized; fetches + builds frameworks, you link them manually
+        • Does not modify your Xcode project — you drag in built .xcframework files
+        • Result: simpler integration, easier to audit
+        • Downsides: slower (builds all dependencies from source), no central catalog, manual framework linkage step
+
+        Swift Package Manager (SPM):
+        • First-party; built into Swift and Xcode (no external tooling)
+        • Integrates directly into Xcode project (Package.resolved for lockfile)
+        • Supports libraries, executables, plugins, binary targets (.xcframework)
+        • Fastest to set up; no workspace modifications
+        • Downsides: some legacy ObjC-heavy or resource-bundle-heavy pods aren't yet SPM-compatible; limited support for certain build setting customizations
+
+        Current recommendation:
+        • SPM for new projects and any library that supports it
+        • CocoaPods as fallback for libraries not yet on SPM
+        • Carthage largely superseded by SPM in new projects
+
+        Binary vs source dependencies:
+        • SPM .binaryTarget (XCFramework) / CocoaPods vendored_frameworks: ship pre-built; faster CI, obfuscated internals
+        • Source dependencies: auditable, customizable, built with your settings
+        """,
+        difficulty: .easy,
+        topic: .tooling
+    ),
+    ConceptCard(
+        question: "What is the difference between static and dynamic frameworks in iOS?",
+        answer: """
+        Static framework (.a + headers, or .framework with static lib):
+        • Code is copied directly into the app binary at link time
+        • App launch: no extra dylib loading — slightly faster pre-main startup
+        • No sharing: each app/extension gets its own copy
+        • Larger binary if the same library is linked into the app and multiple extensions
+
+        Dynamic framework (.framework with .dylib):
+        • Loaded at runtime by the dynamic linker; not copied into the main binary
+        • Can be shared between the app and its extensions (app extensions can link the same framework)
+        • Adds pre-main time: each dylib adds ~1–5ms loading overhead
+        • Required for App Extensions that share code with the host app
+
+        XCFramework:
+        • A bundle containing multiple framework variants (device arm64, simulator x86_64/arm64)
+        • Can be static or dynamic; single artifact works for all architectures
+        • Preferred distribution format for binary SDKs (replacing fat/universal frameworks)
+
+        Choosing:
+        • Internal modules / app-only code: static (faster launch, simpler)
+        • Shared between app + extension, or distributed as a binary SDK: dynamic / XCFramework
+        • App size: dynamic frameworks don't reduce total size unless truly shared; static is often smaller overall
+
+        CocoaPods generates dynamic frameworks by default (use_frameworks!); SPM products default to static unless explicitly declared dynamic.
+        """,
+        difficulty: .medium,
+        topic: .tooling
+    ),
+]
+
+// MARK: - Data Persistence
+
+let dataPersistenceCards: [ConceptCard] = [
+    ConceptCard(
+        question: "What are the data persistence options in iOS and when do you use each?",
+        answer: """
+        UserDefaults: key-value store for small primitive values (settings, flags, user preferences). Backed by a plist. Never store sensitive data — not encrypted. Limit to a few KB; large blobs degrade app launch.
+
+        Keychain: secure, encrypted storage for sensitive values (tokens, passwords, certificates). Persists across app reinstalls (unless explicitly removed). Access controlled by Keychain Access Groups for sharing across apps/extensions.
+
+        File system (FileManager): arbitrary data (images, documents, caches) in app sandbox directories:
+        • Documents/ — user-visible files, iCloud-backed
+        • Library/Caches/ — purgeable by OS, not backed up
+        • Library/Application Support/ — internal app data, backed up
+
+        SQLite / GRDB / FMDB: relational data, complex queries, large datasets. Lower level than Core Data.
+
+        Core Data: Apple's object graph + persistence framework built on SQLite (usually). Best for complex object relationships, undo/redo, faulting, and NSFetchedResultsController for live-updating UIs.
+
+        SwiftData (iOS 17+): modern Swift-native persistence using macros (@Model). Wraps Core Data but with a cleaner API and native Swift concurrency support.
+
+        Realm: third-party document-object database. Zero-copy reads, reactive change notifications, cross-platform (iOS + Android). Good alternative when Core Data is too heavy.
+        """,
+        difficulty: .easy,
+        topic: .dataPersistence
+    ),
+    ConceptCard(
+        question: "Explain Core Data's main components and the managed object context.",
+        answer: """
+        Core Data stack:
+        • NSManagedObjectModel: the schema (entities, attributes, relationships) — defined in .xcdatamodeld
+        • NSPersistentStore / NSPersistentStoreCoordinator: the actual storage backend (SQLite, binary, in-memory)
+        • NSManagedObjectContext (MOC): the in-memory scratchpad where you create, read, update, delete objects
+
+        NSManagedObjectContext key behaviors:
+        • Changes are not persisted until you call context.save()
+        • Each context is not thread-safe — use it only on the thread/queue it was created on
+        • viewContext (main queue) for UI; backgroundContext for heavy fetches/batch operations
+        • performAndWait / perform for safe cross-thread access
+
+        Faulting: Core Data returns "fault" objects (placeholders) for relationships and deferred properties. Actual data loads on first access — good for memory, but can cause unexpected I/O.
+
+        NSFetchedResultsController: monitors a fetch request and notifies delegates of changes — designed to power UITableView/UICollectionView with automatic inserts/deletes.
+
+        NSPersistentCloudKitContainer: drop-in replacement for NSPersistentContainer that syncs to CloudKit. Requires iCloud entitlement.
+
+        Common pitfall: passing NSManagedObjects across context boundaries. Use objectID to pass references and re-fetch in the target context.
+        """,
+        difficulty: .medium,
+        topic: .dataPersistence
+    ),
+    ConceptCard(
+        question: "What is SwiftData and how does it compare to Core Data?",
+        answer: """
+        SwiftData (iOS 17+) is Apple's modern persistence framework built on top of Core Data but with a native Swift API.
+
+        Defining a model:
+            @Model
+            class Book {
+                var title: String
+                var author: String
+                @Relationship(deleteRule: .cascade) var chapters: [Chapter]
+            }
+        The @Model macro generates the schema — no .xcdatamodeld file needed.
+
+        Querying:
+            @Query(sort: \\.title) var books: [Book]   // in a SwiftUI view
+            // or
+            let descriptor = FetchDescriptor<Book>(predicate: #Predicate { $0.author == "Tolkien" })
+            let results = try modelContext.fetch(descriptor)
+
+        Compared to Core Data:
+        • Pros: Swift-native types, macros eliminate boilerplate, #Predicate is type-safe (vs. NSPredicate strings), natural async/await support with ModelActor
+        • Cons: iOS 17+ only, less mature ecosystem, some advanced Core Data features (NSFetchedResultsController, batch operations) have no direct equivalent yet
+        • Under the hood: SwiftData creates and uses a Core Data stack — you can even use both in the same app during migration
+
+        ModelActor: the SwiftData equivalent of a background managed object context, conforming to the Swift actor model for safe concurrent access.
+        """,
+        difficulty: .medium,
+        topic: .dataPersistence
+    ),
+]
+
+// MARK: - Combine
+
+let combineCards: [ConceptCard] = [
+    ConceptCard(
+        question: "What is Combine and what are its core concepts?",
+        answer: """
+        Combine is Apple's reactive programming framework (iOS 13+). It models asynchronous event streams using three core concepts:
+
+        Publisher: emits a sequence of values over time, then completes or fails.
+            • Output: the value type
+            • Failure: the error type (Never if infallible)
+
+        Subscriber: receives values, completion, or failure from a publisher.
+            • sink(receiveValue:) — closure-based subscriber
+            • assign(to:on:) — directly assigns values to a keypath
+
+        Operator: transforms, filters, or combines publishers. Examples:
+            • map, compactMap, filter — transform values
+            • flatMap — chain publishers
+            • debounce, throttle — time-based control
+            • combineLatest, zip, merge — combine multiple publishers
+            • receive(on:) — switch scheduler (e.g., to main queue)
+
+        Cancellable / AnyCancellable: subscription lifecycle token. Store in a Set<AnyCancellable> to keep subscriptions alive. Cancels automatically when deallocated.
+
+        Relationship to async/await: Combine is still useful for multi-value streams (NotificationCenter, continuous location updates). For one-shot async work, async/await is cleaner. The two integrate: publishers expose .values for async for-in loops.
+        """,
+        difficulty: .medium,
+        topic: .combine
+    ),
+    ConceptCard(
+        question: "What is @Published and how does it work with ObservableObject?",
+        answer: """
+        @Published is a property wrapper that wraps a value and publishes changes via a Combine publisher. The projected value ($property) is a Publisher.
+
+        ObservableObject: a protocol requiring an objectWillChange: ObservableObjectPublisher. SwiftUI subscribes to this publisher and re-renders views on changes.
+
+        How they connect:
+        • @Published synthesizes willSet behavior that calls objectWillChange.send() before the value changes
+        • SwiftUI's @ObservedObject and @StateObject subscribe to objectWillChange and schedule a view body re-evaluation
+
+        Example:
+            class SearchViewModel: ObservableObject {
+                @Published var query = ""
+                @Published private(set) var results: [Item] = []
+
+                private var cancellables = Set<AnyCancellable>()
+
+                init() {
+                    $query
+                        .debounce(for: .milliseconds(300), scheduler: DispatchQueue.main)
+                        .removeDuplicates()
+                        .sink { [weak self] q in
+                            Task { await self?.search(q) }
+                        }
+                        .store(in: &cancellables)
+                }
+            }
+
+        Thread safety: @Published must be mutated on the main actor if it drives SwiftUI. Mark the class @MainActor or dispatch updates to the main queue.
+
+        Swift 5.9+: @Observable (Observation framework) replaces ObservableObject with finer-grained dependency tracking — only views reading a specific property re-render, not all observers.
+        """,
+        difficulty: .medium,
+        topic: .combine
+    ),
 ]
 
 // MARK: - Combined list
 
 let allConceptCards: [ConceptCard] =
     swiftFundamentalsCards +
+    swiftFundamentalsAdditionalCards +
     memoryManagementCards +
     concurrencyCards +
     swiftUICards +
     uiKitCards +
     networkingCards +
+    networkingAdditionalCards +
     architectureCards +
+    architectureAdditionalCards +
     testingCards +
-    performanceCards
+    performanceCards +
+    dataPersistenceCards +
+    combineCards +
+    appLifecycleCards +
+    securityCards +
+    toolingCards

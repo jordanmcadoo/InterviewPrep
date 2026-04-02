@@ -2,7 +2,10 @@ import SwiftUI
 
 struct CardDetailView: View {
     let card: AnyCard
+    @EnvironmentObject var mastery: CardMasteryStore
+    @EnvironmentObject var notesStore: CardNotesStore
     @State private var isAnswerVisible = false
+    @State private var noteText: String = ""
 
     var body: some View {
         ScrollView {
@@ -13,11 +16,16 @@ struct CardDetailView: View {
                 if let lc = card.asLeetCode {
                     leetCodeSection(lc)
                 }
+                if card.category == .behavioral {
+                    notesSection
+                }
             }
             .padding()
         }
         .navigationTitle(card.asLeetCode?.title ?? card.category.rawValue)
         .navigationBarTitleDisplayMode(.inline)
+        .onAppear { noteText = notesStore.note(for: card.id) }
+        .onChange(of: noteText) { notesStore.setNote(noteText, for: card.id) }
     }
 
     // MARK: - Meta
@@ -39,6 +47,23 @@ struct CardDetailView: View {
                 .foregroundStyle(difficultyColor)
 
             Spacer()
+
+            // Mastery toggle
+            Button {
+                if mastery.isMastered(card.id) {
+                    mastery.unmaster(id: card.id)
+                } else {
+                    mastery.master(id: card.id)
+                }
+            } label: {
+                Label(
+                    "Got It",
+                    systemImage: mastery.isMastered(card.id) ? "checkmark.circle.fill" : "circle"
+                )
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(mastery.isMastered(card.id) ? .green : .secondary)
+            }
+            .buttonStyle(.plain)
         }
     }
 
@@ -86,7 +111,37 @@ struct CardDetailView: View {
                     .padding(16)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .background(Color(.secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 12))
-                    .transition(.opacity.combined(with: .move(edge: .top)))
+                    .transition(.opacity)
+            }
+        }
+    }
+
+    // MARK: - Notes Section
+
+    private var notesSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Label("My Notes", systemImage: "note.text")
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(.secondary)
+                .textCase(.uppercase)
+
+            ZStack(alignment: .topLeading) {
+                TextEditor(text: $noteText)
+                    .font(.callout)
+                    .lineSpacing(4)
+                    .frame(minHeight: 120)
+                    .padding(12)
+                    .background(Color(.secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 12))
+                    .scrollContentBackground(.hidden)
+
+                if noteText.isEmpty {
+                    Text("Write your STAR story, key talking points, or examples here…")
+                        .font(.callout)
+                        .foregroundStyle(.tertiary)
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 20)
+                        .allowsHitTesting(false)
+                }
             }
         }
     }

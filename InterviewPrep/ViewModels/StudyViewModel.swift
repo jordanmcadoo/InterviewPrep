@@ -5,13 +5,31 @@ final class StudyViewModel: ObservableObject {
     @Published private(set) var session: StudySession?
     @Published var showingDeckPicker = true
 
+    private let store: StudyStore
+    private let mastery: CardMasteryStore
+    var hideStore: CardHideStore?
+
+    init(store: StudyStore, mastery: CardMasteryStore) {
+        self.store = store
+        self.mastery = mastery
+    }
+
     func start(deck: Deck) {
         session = StudySession(deck: deck.withShuffledCards())
         showingDeckPicker = false
     }
 
     func answer(_ result: CardResult) {
-        session?.record(result)
+        guard let session else { return }
+        // Update mastery before advancing the index
+        if let card = session.currentCard {
+            if result == .correct   { mastery.master(id: card.id) }
+            if result == .incorrect { mastery.unmaster(id: card.id) }
+        }
+        session.record(result)
+        if session.isComplete {
+            store.record(session: session)
+        }
     }
 
     func skip() {
@@ -20,6 +38,12 @@ final class StudyViewModel: ObservableObject {
 
     func restartSession() {
         session?.restart()
+    }
+
+    func hideCurrentCard() {
+        guard let card = session?.currentCard else { return }
+        hideStore?.hide(id: card.id)
+        session?.skip()
     }
 
     func backToDeckPicker() {

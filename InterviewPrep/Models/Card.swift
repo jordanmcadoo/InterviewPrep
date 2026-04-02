@@ -77,6 +77,11 @@ enum ConceptTopic: String, CaseIterable, Codable, Hashable {
     case testing           = "Testing"
     case performance       = "Performance"
     case dataStructures    = "Data Structures"
+    case dataPersistence   = "Data Persistence"
+    case combine           = "Combine"
+    case appLifecycle      = "App Lifecycle"
+    case security          = "Security"
+    case tooling           = "Tooling"
 }
 
 // MARK: - Card Protocol

@@ -1,20 +1,40 @@
 import SwiftUI
 
+// Drives rotation AND visibility from a single animatable value so the
+// face swap happens exactly when the card is edge-on (progress == 0.5),
+// not at the start/end of the animation.
+private struct CardFaceModifier: AnimatableModifier {
+    var progress: Double  // 0 = front showing, 1 = back showing
+    let isFront: Bool
+
+    var animatableData: Double {
+        get { progress }
+        set { progress = newValue }
+    }
+
+    func body(content: Content) -> some View {
+        // Front: 0° → 180°   Back: -90° → 0°  (both edge-on at progress == 0.5)
+        let angle = isFront ? progress * 180 : (progress - 1) * 180
+        let visible = isFront ? progress < 0.5 : progress >= 0.5
+        content
+            .rotation3DEffect(.degrees(angle), axis: (0, 1, 0), perspective: 0.3)
+            .opacity(visible ? 1 : 0)
+    }
+}
+
 struct FlashCardView: View {
     let card: AnyCard
     @Binding var isFlipped: Bool
+    @EnvironmentObject private var notesStore: CardNotesStore
 
     var body: some View {
         ZStack {
             frontSide
-                .opacity(isFlipped ? 0 : 1)
-                .rotation3DEffect(.degrees(isFlipped ? 180 : 0), axis: (x: 0, y: 1, z: 0))
-
+                .modifier(CardFaceModifier(progress: isFlipped ? 1 : 0, isFront: true))
             backSide
-                .opacity(isFlipped ? 1 : 0)
-                .rotation3DEffect(.degrees(isFlipped ? 0 : -180), axis: (x: 0, y: 1, z: 0))
+                .modifier(CardFaceModifier(progress: isFlipped ? 1 : 0, isFront: false))
         }
-        .animation(.spring(duration: 0.45), value: isFlipped)
+        .animation(.spring(duration: 0.5), value: isFlipped)
         .onTapGesture { isFlipped.toggle() }
     }
 
@@ -51,12 +71,35 @@ struct FlashCardView: View {
                 }
                 Divider()
                 ScrollView {
-                    Text(card.answer)
-                        .font(.callout)
-                        .lineSpacing(4)
-                        .frame(maxWidth: .infinity, alignment: .leading)
+                    VStack(alignment: .leading, spacing: 16) {
+                        Text(card.answer)
+                            .font(.callout)
+                            .lineSpacing(4)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+
+                        if card.category == .behavioral,
+                           notesStore.hasNote(for: card.id) {
+                            notesPreview
+                        }
+                    }
                 }
             }
+        }
+    }
+
+    private var notesPreview: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Label("My Notes", systemImage: "note.text")
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(.secondary)
+
+            Text(notesStore.note(for: card.id))
+                .font(.caption)
+                .lineSpacing(3)
+                .foregroundStyle(.primary)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(10)
+                .background(Color(.tertiarySystemFill), in: RoundedRectangle(cornerRadius: 8))
         }
     }
 
