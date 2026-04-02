@@ -47,12 +47,13 @@ private struct ActiveStudyView: View {
             Spacer(minLength: 12)
 
             ZStack {
-                // n+1: full opacity, blocked by current card on top
-                if let next = session.nextCard {
-                    FlashCardView(card: next, isFlipped: .constant(false))
+                // Static peek card — plain shape, no FlashCardView reuse
+                if session.nextCard != nil {
+                    RoundedRectangle(cornerRadius: 20, style: .continuous)
+                        .fill(Color(.secondarySystemGroupedBackground))
+                        .shadow(color: .black.opacity(0.12), radius: 12, x: 0, y: 4)
                         .padding(.horizontal, 20)
                         .frame(maxHeight: 460)
-                        .allowsHitTesting(false)
                 }
 
                 // Current card on top
@@ -212,6 +213,12 @@ private struct ActiveStudyView: View {
         withAnimation(.spring(duration: 0.3), completionCriteria: .logicallyComplete) {
             dragOffset = direction * 500
         } completion: {
+            var t = Transaction(animation: nil)
+            t.disablesAnimations = true
+            withTransaction(t) {
+                dragOffset = 0
+                isFlipped = false
+            }
             vm.answer(result)
         }
     }
