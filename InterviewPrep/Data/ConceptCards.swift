@@ -550,6 +550,191 @@ let swiftUICards: [ConceptCard] = [
         difficulty: .medium,
         topic: .swiftUI
     ),
+    ConceptCard(
+        question: "How does @Environment work, and how do you define a custom EnvironmentKey?",
+        answer: """
+        @Environment reads values propagated down the view hierarchy. SwiftUI ships with built-in keys like colorScheme, locale, dismiss, and horizontalSizeClass.
+
+            struct ContentView: View {
+                @Environment(\\.colorScheme) var colorScheme
+                @Environment(\\.dismiss) var dismiss
+            }
+
+        Defining a custom key:
+            private struct AccentColorKey: EnvironmentKey {
+                static let defaultValue: Color = .blue
+            }
+
+            extension EnvironmentValues {
+                var accentTheme: Color {
+                    get { self[AccentColorKey.self] }
+                    set { self[AccentColorKey.self] = newValue }
+                }
+            }
+
+            // Inject at any ancestor:
+            ContentView().environment(\\.accentTheme, .purple)
+
+            // Read anywhere below:
+            @Environment(\\.accentTheme) var accentTheme
+
+        @Environment vs @EnvironmentObject:
+        • @Environment is key-path based, value-type safe, has a compile-time default.
+        • @EnvironmentObject requires an ObservableObject injected via .environmentObject(_:) and crashes at runtime if missing.
+        • Prefer @Environment for simple values/actions; @EnvironmentObject for shared observable state.
+        """,
+        difficulty: .medium,
+        topic: .swiftUI
+    ),
+    ConceptCard(
+        question: "What is the @Observable macro (iOS 17) and how does it differ from ObservableObject?",
+        answer: """
+        @Observable (Swift 5.9 / iOS 17) is a macro from the Observation framework that replaces the ObservableObject + @Published pattern.
+
+        Old pattern:
+            class CounterVM: ObservableObject {
+                @Published var count = 0
+            }
+            @StateObject var vm = CounterVM()
+
+        New pattern:
+            @Observable class CounterVM {
+                var count = 0   // all stored properties are automatically observed
+            }
+            @State var vm = CounterVM()   // no longer needs @StateObject
+
+        Key differences:
+        • No @Published needed — all stored properties participate in observation automatically.
+        • Views only re-render when the specific properties they read change, not whenever any property changes. Fine-grained dependency tracking.
+        • Use @State (not @StateObject) for view-owned models; @Bindable for two-way bindings.
+        • @Bindable lets you create $bindings from @Observable properties.
+        • Pass via environment with .environment(_:) directly — no .environmentObject needed.
+
+        Backward compatibility: ObservableObject still works; @Observable is additive for iOS 17+.
+        """,
+        difficulty: .medium,
+        topic: .swiftUI
+    ),
+    ConceptCard(
+        question: "What are @AppStorage and @SceneStorage, and when do you use each?",
+        answer: """
+        @AppStorage: a property wrapper that reads/writes a value in UserDefaults and triggers a view update on change. Sugar over UserDefaults with automatic SwiftUI integration.
+
+            @AppStorage("isDarkMode") var isDarkMode = false
+
+        • Backed by UserDefaults (default suite or custom).
+        • Persists across app launches.
+        • Supports Bool, Int, Double, String, Data, URL.
+
+        @SceneStorage: stores small amounts of UI state per scene (window) and restores it on relaunch or scene reconnection. Backed by the scene restoration mechanism, not UserDefaults.
+
+            @SceneStorage("selectedTab") var selectedTab = 0
+
+        • Scoped to a specific scene — two windows can have different values.
+        • Erased when the scene is explicitly closed by the user.
+        • Supports same types as @AppStorage.
+
+        When to use which:
+        • @AppStorage: user preferences, feature flags, settings that should apply globally across all scenes.
+        • @SceneStorage: transient UI state (selected tab, scroll offset, draft text) that should restore per window.
+        • Neither should store large/sensitive data — use CoreData/Keychain for that.
+        """,
+        difficulty: .medium,
+        topic: .swiftUI
+    ),
+    ConceptCard(
+        question: "How do PreferenceKey and anchorPreference work in SwiftUI?",
+        answer: """
+        SwiftUI data flows down the hierarchy (@Environment, parameters). PreferenceKey flows data up — a child reports a value that an ancestor can read.
+
+        Defining a PreferenceKey:
+            struct FrameKey: PreferenceKey {
+                static var defaultValue: CGRect = .zero
+                static func reduce(value: inout CGRect, nextValue: () -> CGRect) {
+                    value = nextValue()   // or combine, e.g. value = value.union(nextValue())
+                }
+            }
+
+        Reporting from a child:
+            .background(
+                GeometryReader { geo in
+                    Color.clear.preference(key: FrameKey.self,
+                                           value: geo.frame(in: .global))
+                }
+            )
+
+        Reading in an ancestor:
+            .onPreferenceChange(FrameKey.self) { frame in
+                self.childFrame = frame
+            }
+
+        anchorPreference: like preference, but uses Anchor<T> values (positions/sizes) in a named coordinate space — safer than raw CGRect because the conversion is deferred to the ancestor.
+
+        Common use cases:
+        • Measuring child view sizes to align or resize siblings.
+        • Building custom matched-geometry-like animations.
+        • Equalizing widths across sibling views.
+        """,
+        difficulty: .hard,
+        topic: .swiftUI
+    ),
+    ConceptCard(
+        question: "How does SwiftUI animation work? Explain implicit vs. explicit animation and withAnimation vs. .animation.",
+        answer: """
+        SwiftUI animates the difference between two view states. Any Animatable property (position, opacity, color, etc.) interpolates between old and new values.
+
+        Implicit animation (.animation modifier):
+            Circle()
+                .scaleEffect(isExpanded ? 2 : 1)
+                .animation(.spring(), value: isExpanded)
+        • Fires whenever `isExpanded` changes, regardless of what triggered the change.
+        • The `value:` parameter (iOS 17+) scopes the animation to a specific value — always prefer it to avoid unexpected animations.
+
+        Explicit animation (withAnimation):
+            withAnimation(.easeInOut(duration: 0.3)) {
+                isExpanded.toggle()
+            }
+        • Animates all state changes made inside the closure.
+        • Gives more control over timing; useful when multiple state changes should animate together.
+
+        Transitions (.transition): animate a view entering or leaving the hierarchy:
+            if isVisible {
+                Banner().transition(.slide)
+            }
+
+        Custom animations: conform to the Animatable protocol by providing animatableData (a VectorArithmetic value).
+
+        matchedGeometryEffect: animates a view's frame between two positions in different parts of the hierarchy using a shared namespace.
+        """,
+        difficulty: .medium,
+        topic: .swiftUI
+    ),
+    ConceptCard(
+        question: "What is GeometryReader and what are its trade-offs?",
+        answer: """
+        GeometryReader is a container view that exposes the size and coordinate-space information of its parent to its children via a GeometryProxy.
+
+            GeometryReader { geo in
+                Circle()
+                    .frame(width: geo.size.width * 0.5)
+            }
+
+        GeometryProxy provides:
+        • geo.size — the available width/height
+        • geo.frame(in:) — the frame in a named or global coordinate space
+        • geo.safeAreaInsets
+
+        Trade-offs:
+        • GeometryReader fills all available space by default (greedy layout). This can break layouts if used carelessly inside stacks.
+        • body is called on every size change — keep it cheap or extract to a subview.
+        • For just reading a child's size, prefer the .onGeometryChange modifier (iOS 17) or PreferenceKey + background trick, which are less disruptive to layout.
+        • .onGeometryChange(for:of:action:) is the modern replacement for many GeometryReader patterns.
+
+        Common uses: proportional sizing, parallax effects, anchoring overlays, reading safe area insets in unusual contexts.
+        """,
+        difficulty: .medium,
+        topic: .swiftUI
+    ),
 ]
 
 // MARK: - UIKit

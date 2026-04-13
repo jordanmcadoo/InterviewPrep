@@ -31,6 +31,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		17693CDB2F7DFFBA008E5B3C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		AA0000000000000000000001 /* InterviewPrep.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = InterviewPrep.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		AA1000000000000000000001 /* InterviewPrepApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InterviewPrepApp.swift; sourceTree = "<group>"; };
 		AA1000000000000000000002 /* Card.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Card.swift; sourceTree = "<group>"; };
@@ -77,6 +78,7 @@
 		AA3000000000000000000002 /* InterviewPrep */ = {
 			isa = PBXGroup;
 			children = (
+				17693CDB2F7DFFBA008E5B3C /* Info.plist */,
 				AA1000000000000000000001 /* InterviewPrepApp.swift */,
 				AA3000000000000000000003 /* Models */,
 				AA3000000000000000000004 /* Data */,
@@ -288,6 +290,8 @@
 				DEVELOPMENT_TEAM = J543H758C9;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = InterviewPrep/Info.plist;
+				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -317,6 +321,8 @@
 				DEVELOPMENT_TEAM = J543H758C9;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = InterviewPrep/Info.plist;
+				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
